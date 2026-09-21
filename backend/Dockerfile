@@ -11,7 +11,7 @@ COPY app ./app
 COPY tests ./tests
 
 RUN uv pip install --system --no-cache fastapi uvicorn[standard] pydantic neo4j numpy scipy \
-    opencv-python-headless scikit-learn reportlab pyyaml python-multipart google-generativeai
+    opencv-python-headless scikit-learn reportlab pyyaml python-multipart python-dotenv google-genai
 
 EXPOSE 8000
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

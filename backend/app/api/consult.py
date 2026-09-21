@@ -1,12 +1,10 @@
 """Consultation: transcription, content-based speaker attribution, pain-point
 extraction (specs.md §3, architecture.md §10).
 
-Degradation policy, same as `api/kb.py` / `api/session.py`: every live Gemini
-call is wrapped, and any failure (no key, rate limit, network, unparseable
-response) falls back to the cached golden-path response
-(`providers/golden_path.json`) rather than returning an error. The response
-carries `source` so developer mode can tell the two apart — the UI never claims
-a cached answer was live.
+Live mode is fail-closed: missing/empty audio and every Gemini failure return an
+explicit HTTP error, so cached clinical content can never be mistaken for a
+real consultation. The golden-path cache is used only when
+`SANJEEVANI_FIXTURE_MODE=true`, for deliberate offline demos and tests.
 
 Graph writes are best-effort in the same way: when `app.state.graph_client` is
 None or a Cypher call raises, the write is a silent no-op and Tier 1 working
@@ -15,7 +13,9 @@ memory still carries the session forward.
 
 from __future__ import annotations
 
-from fastapi import APIRouter, Form, Request, UploadFile
+import logging
+
+from fastapi import APIRouter, Form, HTTPException, Request, UploadFile
 
 from app.agents.attribution import attribute_speakers, segments_to_turns, turns_to_transcript_text
 from app.agents.extraction import extract_pain_points
@@ -31,13 +31,24 @@ from app.models import (
     TranscriptTurn,
 )
 from app.providers import cache
-from app.providers.llm import GeminiLLM
-from app.providers.stt import GeminiSTT, STTUnavailable, Transcript
+from app.providers.llm import LLMUnavailable, OpenRouterLLM, fixture_mode
+from app.providers.stt import FasterWhisperSTT, STTUnavailable, Transcript
 
 router = APIRouter(prefix="/api/consult", tags=["consult"])
+logger = logging.getLogger("sanjeevani.consult")
 
-_llm = GeminiLLM()
-_stt = GeminiSTT()
+# LLM reasoning (extraction/attribution) runs through OpenRouter, model
+# anthropic/claude-haiku-4.5 (OPENROUTER_API_KEY / OPENROUTER_MODEL). STT runs
+# fully local via faster-whisper (real ASR, not a generative model) — live
+# testing showed every multimodal-LLM STT option tried (Gemini,
+# openai/gpt-audio-mini, openai/gpt-audio) hallucinates a plausible fake
+# transcript from silence/non-speech audio instead of returning empty, which
+# is unsafe for a medical-transcription path. Whisper decodes audio frames
+# rather than generating text, so it isn't prone to this failure mode.
+# GeminiLLM/AnthropicLLM/GeminiSTT/OpenRouterSTT stay defined in providers/ as
+# alternate implementations of the same Protocol seam.
+_llm = OpenRouterLLM()
+_stt = FasterWhisperSTT()
 
 
 def _cached_turns() -> list[dict]:
@@ -88,13 +99,28 @@ async def transcribe(
     audio-diarization path."""
     audio_bytes = await audio.read() if audio is not None else b""
 
+    if not fixture_mode() and len(audio_bytes) < 1024:
+        raise HTTPException(
+            status_code=400,
+            detail="No usable microphone audio was received. Record for at least one second and try again.",
+        )
+
     source = "live"
     transcript: Transcript | None = None
     try:
-        transcript = await _stt.transcribe(audio_bytes, language)
+        mime_type = audio.content_type if audio and audio.content_type else "audio/webm"
+        transcript = await _stt.transcribe(audio_bytes, language, mime_type)
         if not transcript.segments:
             raise STTUnavailable("Empty transcript.")
-    except (STTUnavailable, NotImplementedError, ValueError):
+    except (STTUnavailable, NotImplementedError, ValueError) as exc:
+        logger.exception(
+            "Live transcription failed session=%s bytes=%d content_type=%s",
+            session_id,
+            len(audio_bytes),
+            audio.content_type if audio else None,
+        )
+        if not fixture_mode():
+            raise HTTPException(status_code=503, detail=f"Live transcription failed: {exc}") from exc
         transcript = None
 
     if transcript is None:
@@ -128,10 +154,11 @@ async def transcribe(
 @router.post("/extract", response_model=ExtractResponse)
 async def extract(session_id: str, request: Request) -> ExtractResponse:
     """Pain-point extraction over the session's transcript (Tier 1 working
-    memory, written by /transcribe). Falls back to the cached golden-path
-    extraction when the LLM is unavailable or the transcript is the demo
-    script."""
+    memory, written by /transcribe). The cache is used only in explicit fixture
+    mode or when a live transcript exactly matches the demo script."""
     state = get_or_create_session(session_id)
+    if not state.transcript and not fixture_mode():
+        raise HTTPException(status_code=409, detail="No live transcript exists for this session.")
     turns = state.transcript or _cached_turns()
     transcript_text = turns_to_transcript_text(turns)
     language = "te" if cache.matches_golden_path(transcript_text) else "en"
@@ -144,7 +171,11 @@ async def extract(session_id: str, request: Request) -> ExtractResponse:
     else:
         try:
             pain_points = await extract_pain_points(_llm, transcript_text)
-        except Exception:
+        except Exception as exc:
+            logger.exception("Live pain-point extraction failed session=%s", session_id)
+            if not fixture_mode():
+                message = str(exc) if isinstance(exc, LLMUnavailable) else type(exc).__name__
+                raise HTTPException(status_code=503, detail=f"Live pain-point extraction failed: {message}") from exc
             source = "golden_path_cache"
             pain_points = [dict(p) for p in cache.golden_extract()["pain_points"]]
 

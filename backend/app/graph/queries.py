@@ -188,6 +188,19 @@ MERGE (p)-[:HAD_SESSION]->(s)
 RETURN p.person_id AS person_id, s.session_id AS session_id
 """
 
+# Returning-patient match for /api/session/start (no unique patient ID exists
+# in intake — name + village + gender, case-insensitive, is the deliberately
+# narrow match rule; age is excluded since it drifts/gets rounded between
+# visits). Ties broken by most recently created Person, in case of duplicates
+# from before this lookup existed.
+FIND_EXISTING_PERSON = """
+MATCH (p:PHI:Person)-[:LIVES_IN]->(v:PHI:Village {village_id: $village_id})
+WHERE toLower(p.name) = toLower($name) AND toLower(p.gender) = toLower($gender)
+RETURN p.person_id AS person_id
+ORDER BY p.person_id DESC
+LIMIT 1
+"""
+
 # ---------------------------------------------------------------------------
 # PHI — continuous session persistence (Tier 2, architecture.md §6). Written
 # during the session, not only at the end, so a mid-session crash loses nothing.

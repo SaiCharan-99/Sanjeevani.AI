@@ -36,7 +36,8 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
     ...options,
   });
   if (!res.ok) {
-    throw new Error(`API error ${res.status} on ${path}`);
+    const payload = (await res.json().catch(() => null)) as { detail?: string } | null;
+    throw new Error(payload?.detail ?? `API error ${res.status} on ${path}`);
   }
   return res.json() as Promise<T>;
 }
@@ -67,7 +68,10 @@ export const api = {
     form.append("language", language);
     form.append("audio", audio, "consultation.webm");
     const res = await fetch(`${BASE_URL}/api/consult/transcribe`, { method: "POST", body: form });
-    if (!res.ok) throw new Error(`API error ${res.status} on /api/consult/transcribe`);
+    if (!res.ok) {
+      const payload = (await res.json().catch(() => null)) as { detail?: string } | null;
+      throw new Error(payload?.detail ?? `API error ${res.status} on /api/consult/transcribe`);
+    }
     return (await res.json()) as TranscribeResponse;
   },
 

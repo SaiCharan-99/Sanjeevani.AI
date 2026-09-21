@@ -23,6 +23,8 @@ export interface AudioRecording {
   blob: Blob;
   mimeType: string;
   durationS: number;
+  /** Highest raw RMS observed; used to reject muted/disconnected input. */
+  peakRms: number;
 }
 
 export interface AudioRecorderHandle {
@@ -30,6 +32,7 @@ export interface AudioRecorderHandle {
    * transcript live on screen 6 — the first chunk carries the WebM header, so
    * concatenating chunks-so-far yields a decodable file. */
   snapshot: () => Blob;
+  hasSpeech: () => boolean;
   stop: () => Promise<AudioRecording>;
   cancel: () => void;
 }
@@ -85,6 +88,7 @@ export async function startRecording(onTick: (tick: RecorderTick) => void): Prom
   const startedAt = performance.now();
   let raf = 0;
   let lastPush = 0;
+  let peakRms = 0;
 
   const loop = () => {
     analyser.getByteTimeDomainData(buffer);
@@ -94,6 +98,7 @@ export async function startRecording(onTick: (tick: RecorderTick) => void): Prom
       sum += centred * centred;
     }
     const rms = Math.sqrt(sum / buffer.length);
+    peakRms = Math.max(peakRms, rms);
     const now = performance.now();
     if (now - lastPush > 90) {
       lastPush = now;
@@ -115,16 +120,17 @@ export async function startRecording(onTick: (tick: RecorderTick) => void): Prom
 
   return {
     snapshot: () => new Blob(chunks, { type: mimeType }),
+    hasSpeech: () => peakRms >= 0.008,
     stop: () =>
       new Promise<AudioRecording>((resolve) => {
         const durationS = (performance.now() - startedAt) / 1000;
         recorder.onstop = () => {
           teardown();
-          resolve({ blob: new Blob(chunks, { type: mimeType }), mimeType, durationS });
+          resolve({ blob: new Blob(chunks, { type: mimeType }), mimeType, durationS, peakRms });
         };
         if (recorder.state === "inactive") {
           teardown();
-          resolve({ blob: new Blob(chunks, { type: mimeType }), mimeType, durationS });
+          resolve({ blob: new Blob(chunks, { type: mimeType }), mimeType, durationS, peakRms });
         } else {
           recorder.stop();
         }

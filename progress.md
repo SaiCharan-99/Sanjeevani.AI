@@ -79,6 +79,7 @@ Append every architectural decision made during the build, with reasoning.
 
 | Date | Decision | Reasoning |
 |---|---|---|
+| 2026-09-21 | Live consultation failures return explicit 4xx/5xx errors; golden-path transcript and pain points are available only in explicit fixture mode | Empty audio, missing keys, timeouts, and provider errors must never look like real patient/person-derived clinical content. Migrated the provider from deprecated `google-generativeai` to `google-genai`, load the repository `.env` for local Uvicorn runs, preserve the browser audio MIME type, and reject undersized recordings. |
 | 2026-09-20 | Real rPPG, not simulated | Authenticity; quality gating absorbs the noise |
 | 2026-09-20 | Neo4j over NetworkX | Real Cypher; developer-mode visual needs it |
 | 2026-09-20 | Gemini always, offline as pitch | Time budget; provider seam keeps the claim honest |

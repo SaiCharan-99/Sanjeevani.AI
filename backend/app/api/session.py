@@ -37,10 +37,23 @@ async def start_session(request: SessionStartRequest, http_request: Request) -> 
 
     year = date.today().year
     session_id = f"SAN-{year}-{uuid.uuid4().hex[:4]}"
-    person_id = f"p_{uuid.uuid4().hex[:8]}"
     village_id = request.person.village.strip().lower().replace(" ", "_")
 
     client = _graph(http_request)
+    person_id: str | None = None
+    if client is not None:
+        try:
+            person_id = await persistence.find_existing_person(
+                client,
+                name=request.person.name,
+                village_id=village_id,
+                gender=request.person.gender,
+            )
+        except Exception:
+            person_id = None  # graph unreachable/errored — fall through to a fresh person_id
+    if person_id is None:
+        person_id = f"p_{uuid.uuid4().hex[:8]}"
+
     if client is not None:
         try:
             await persistence.start_session(

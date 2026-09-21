@@ -64,7 +64,7 @@ export default function Screen6Voice() {
         setRecording(true);
 
         interval = window.setInterval(async () => {
-          if (refreshingRef.current || !handleRef.current) return;
+          if (refreshingRef.current || !handleRef.current || !handleRef.current.hasSpeech()) return;
           refreshingRef.current = true;
           try {
             const partial = await api.transcribe(sessionId, language, handleRef.current.snapshot());
@@ -99,6 +99,11 @@ export default function Screen6Voice() {
       const recorded = await handleRef.current.stop();
       handleRef.current = null;
       setRecording(false);
+      if (recorded.durationS < 2 || recorded.blob.size < 1024 || recorded.peakRms < 0.008) {
+        setStopping(false);
+        setError("No usable speech was captured. Check the microphone input level, speak clearly, and record for at least two seconds");
+        return;
+      }
       setPendingAudio(recorded);
       storeAudioMeta({ durationS: recorded.durationS, mimeType: recorded.mimeType });
       if (turns.length) storeTranscript(turns);

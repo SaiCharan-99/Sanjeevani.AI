@@ -19,6 +19,17 @@ def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
+async def find_existing_person(
+    client: GraphClient, *, name: str, village_id: str, gender: str
+) -> str | None:
+    """Returning-patient lookup for /api/session/start (architecture.md §6
+    Tier 3) — narrow, deliberately conservative match on name + village +
+    gender (case-insensitive); see queries.FIND_EXISTING_PERSON. Returns None
+    on no match, letting the caller mint a fresh person_id as before."""
+    rows = await client.run(q.FIND_EXISTING_PERSON, name=name, village_id=village_id, gender=gender)
+    return rows[0]["person_id"] if rows else None
+
+
 async def start_session(
     client: GraphClient,
     *,

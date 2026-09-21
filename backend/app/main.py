@@ -5,9 +5,15 @@ falls back to mock data and providers raise only when actually invoked."""
 from __future__ import annotations
 
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from dotenv import load_dotenv
+
+# Local development starts Uvicorn from backend/, while the shared .env lives
+# at the repository root. Docker/production environment variables still win.
+load_dotenv(Path(__file__).resolve().parents[2] / ".env", override=False)
 
 from app.api import consult, kb, person, report, secondlook, session, synthesis, vitals, village
 from app.graph.client import GraphClient

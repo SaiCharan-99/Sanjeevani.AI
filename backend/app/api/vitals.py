@@ -7,7 +7,11 @@ quality tiers (rule 4) and the retake gate (overall_quality < 0.4).
 
 from __future__ import annotations
 
+import logging
+
 from fastapi import APIRouter
+
+logger = logging.getLogger("sanjeevani.vitals")
 
 from app.memory.state import get_or_create_session
 from app.models import (
@@ -26,6 +30,12 @@ router = APIRouter(prefix="/api/vitals", tags=["vitals"])
 async def process_vitals(request: VitalsProcessRequest) -> VitalsProcessResponse:
     traces = {name: roi.model_dump() for name, roi in request.traces.items()}
 
+    frame_counts = {name: len(roi.get("r", [])) for name, roi in traces.items()}
+    logger.warning(
+        "[DIAG] vitals/process IN session=%s fps=%s duration_s=%s motion_score=%s frame_counts=%s",
+        request.session_id, request.fps, request.duration_s, request.motion_score, frame_counts,
+    )
+
     result = run_pipeline(
         traces=traces,
         timestamps=request.timestamps,
@@ -33,6 +43,16 @@ async def process_vitals(request: VitalsProcessRequest) -> VitalsProcessResponse
         single_motion_score=request.motion_score,
         fs_hint=request.fps,
         duration_s=request.duration_s,
+    )
+
+    logger.warning(
+        "[DIAG] vitals/process OUT hr=%.1f(q=%.2f) rr=%.1f(q=%.2f) spo2=%.1f(q=%.2f) bp=%s(q=%.2f) "
+        "overall=%.2f retake=%s rejected_fraction=%.2f",
+        result.heart_rate_bpm, result.heart_rate_quality,
+        result.respiration_brpm, result.respiration_quality,
+        result.spo2_pct, result.spo2_quality,
+        result.bp_direction, result.bp_quality,
+        result.overall_quality, result.retake_recommended, result.rejected_fraction,
     )
 
     # Tier 1 working memory: the second-look chest-rise capture cross-checks
