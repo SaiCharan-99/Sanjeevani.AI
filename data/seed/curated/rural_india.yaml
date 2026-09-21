@@ -1,0 +1,359 @@
+# Curated knowledge-base layer — hand-written, reviewed like code.
+# Schema: architecture.md §5.2. Curated overrides Kaggle on the same slug/edge.
+#
+# review: "approved" | "pending"
+# ONLY tuberculosis may be "approved" here, because its screening_rule restates
+# the published NTEP presumptive-TB criteria already cited in specs.md §1
+# (cough >= 2 weeks, combined with fever / weight loss / night sweats).
+# Every other disease entry below is a curated STUB pending clinician sign-off
+# and MUST stay `review: pending`. Do not promote them without a clinician —
+# see progress.md > Open questions.
+
+diseases:
+
+  tuberculosis:
+    name: "Pulmonary tuberculosis"
+    description: >
+      A chronic infectious disease caused by Mycobacterium tuberculosis, most
+      commonly affecting the lungs. Presents with a persistent cough, weight
+      loss, fever and night sweats; remains a leading cause of death in rural
+      India and is the subject of the National TB Elimination Programme (NTEP).
+    why_it_occurs: >
+      Spread via airborne droplets from an infectious person; risk increased by
+      indoor biomass-fuel smoke exposure, malnutrition and crowded housing.
+    mitigation: >
+      Early diagnosis via sputum smear/CBNAAT and chest X-ray, directly observed
+      treatment (DOTS) for the full course, improved ventilation, nutrition support.
+    endemic_regions: ["Andhra Pradesh", "Telangana", "Uttar Pradesh", "Bihar"]
+    review: approved
+    presents_with:
+      - symptom: cough
+        symptom_name: "Cough"
+        severity: 4
+        weight: 1.0
+        typical_stage: early
+        screening_rule: "NTEP presumptive TB: cough >= 2 weeks"
+        min_duration_days: 14
+      - symptom: night_sweats
+        symptom_name: "Night sweats"
+        severity: 3
+        weight: 0.8
+        typical_stage: early
+      - symptom: weight_loss
+        symptom_name: "Weight loss"
+        severity: 3
+        weight: 0.8
+        typical_stage: progressive
+      - symptom: exertional_breathlessness
+        symptom_name: "Exertional breathlessness"
+        severity: 4
+        weight: 0.6
+        typical_stage: progressive
+      - symptom: chest_tightness
+        symptom_name: "Chest tightness"
+        severity: 3
+        weight: 0.5
+        typical_stage: progressive
+      - symptom: fatigue
+        symptom_name: "Fatigue"
+        severity: 3
+        weight: 0.5
+        typical_stage: early
+    confirmed_by:
+      - test: sputum_smear_cbnaat
+        test_name: "Sputum smear / CBNAAT"
+        priority: 1
+      - test: chest_xray
+        test_name: "Chest X-ray"
+        priority: 2
+    risk_factors:
+      - exposure: biomass_smoke
+        exposure_name: "Biomass cooking-fuel smoke"
+        weight: 0.4
+    stages: ["early", "progressive", "advanced"]
+
+  copd:
+    name: "Chronic obstructive pulmonary disease"
+    description: >
+      Progressive airflow obstruction from chronic bronchitis and/or emphysema,
+      strongly associated in rural India with indoor biomass-smoke exposure.
+    why_it_occurs: >
+      Long-term exposure to biomass cooking smoke and tobacco causes chronic
+      airway inflammation and irreversible airflow limitation.
+    mitigation: >
+      Smoking/smoke-exposure cessation, spirometry-confirmed diagnosis,
+      bronchodilator therapy, ventilated cookstoves.
+    endemic_regions: ["Andhra Pradesh", "Telangana", "Madhya Pradesh"]
+    review: pending
+    presents_with:
+      - symptom: exertional_breathlessness
+        weight: 0.9
+      - symptom: cough
+        weight: 0.6
+      - symptom: chest_tightness
+        weight: 0.5
+      - symptom: fatigue
+        weight: 0.4
+    confirmed_by:
+      - test: spirometry
+        test_name: "Spirometry"
+        priority: 1
+      - test: chest_xray
+        test_name: "Chest X-ray"
+        priority: 2
+    risk_factors:
+      - exposure: biomass_smoke
+        weight: 0.7
+    stages: ["mild", "moderate", "severe"]
+
+  anemia:
+    name: "Anemia"
+    description: >
+      Reduced red-blood-cell mass or hemoglobin, common in rural India from
+      dietary iron deficiency, parasitic load and chronic blood loss.
+    why_it_occurs: >
+      Poor dietary iron intake, intestinal parasites, and in women, menstrual
+      blood loss or pregnancy demand.
+    mitigation: >
+      Iron and folic-acid supplementation, dietary counselling, CBC confirmation,
+      deworming where indicated.
+    endemic_regions: ["pan-India, rural populations"]
+    review: pending
+    presents_with:
+      - symptom: fatigue
+        weight: 0.8
+      - symptom: pallor
+        symptom_name: "Pallor"
+        severity: 3
+        weight: 0.9
+      - symptom: dizziness
+        weight: 0.5
+    confirmed_by:
+      - test: cbc
+        test_name: "Complete blood count (CBC)"
+        priority: 1
+    stages: ["mild", "moderate", "severe"]
+
+  dengue:
+    name: "Dengue fever"
+    description: >
+      A mosquito-borne viral infection causing high fever, severe headache,
+      joint/muscle pain and, in severe cases, hemorrhagic complications.
+    why_it_occurs: >
+      Transmitted by Aedes aegypti mosquitoes breeding in stagnant water near
+      dwellings, common in the post-monsoon season.
+    mitigation: >
+      Vector control (remove stagnant water), NS1/IgM confirmation, supportive
+      fluid management, platelet monitoring.
+    endemic_regions: ["Andhra Pradesh", "Tamil Nadu", "Delhi NCR"]
+    review: pending
+    presents_with:
+      - symptom: high_fever
+        weight: 0.9
+      - symptom: joint_pain
+        weight: 0.7
+      - symptom: fatigue
+        weight: 0.5
+    confirmed_by:
+      - test: dengue_ns1_igm
+        test_name: "Dengue NS1 / IgM"
+        priority: 1
+    risk_factors:
+      - exposure: stagnant_water
+        weight: 0.7
+    stages: ["febrile", "critical", "recovery"]
+
+  malaria:
+    name: "Malaria"
+    description: >
+      A mosquito-borne parasitic disease causing cyclical high fever, chills
+      and sweating, transmitted by Anopheles mosquitoes.
+    why_it_occurs: >
+      Anopheles mosquitoes breeding in standing water, including borewell
+      overflow and irrigation channels.
+    mitigation: >
+      Rapid diagnostic test confirmation, antimalarial therapy, bed nets,
+      standing-water source control.
+    endemic_regions: ["Odisha", "Chhattisgarh", "rural Andhra Pradesh"]
+    review: pending
+    presents_with:
+      - symptom: high_fever
+        weight: 0.9
+      - symptom: chills
+        symptom_name: "Chills"
+        severity: 3
+        weight: 0.8
+      - symptom: fatigue
+        weight: 0.5
+    confirmed_by:
+      - test: malaria_rdt
+        test_name: "Malaria rapid diagnostic test (RDT)"
+        priority: 1
+    risk_factors:
+      - exposure: stagnant_water
+        weight: 0.6
+    stages: ["acute", "recovery"]
+
+  typhoid:
+    name: "Typhoid fever"
+    description: >
+      A bacterial infection (Salmonella typhi) spread through contaminated
+      food and water, causing sustained fever and abdominal discomfort.
+    why_it_occurs: >
+      Fecal-oral transmission via contaminated drinking water, often from
+      unsafe borewell or open-well sources.
+    mitigation: >
+      Blood-culture confirmation, safe drinking water, antibiotic therapy per
+      culture sensitivity.
+    endemic_regions: ["pan-India, rural populations with unsafe water"]
+    review: pending
+    presents_with:
+      - symptom: high_fever
+        weight: 0.8
+      - symptom: fatigue
+        weight: 0.5
+      - symptom: abdominal_pain
+        weight: 0.6
+    confirmed_by:
+      - test: blood_culture
+        test_name: "Blood culture"
+        priority: 1
+    risk_factors:
+      - exposure: borewell_water
+        weight: 0.6
+    stages: ["acute", "recovery"]
+
+  waterborne_illness:
+    name: "Waterborne illness (cluster label)"
+    description: >
+      A cluster label spanning gastroenteritis and typhoid, used by the village
+      dashboard to surface a spike tied to a shared water source rather than
+      naming a single disease.
+    why_it_occurs: >
+      Contaminated drinking-water sources shared across a hamlet or ward.
+    mitigation: >
+      Source testing and treatment, ORS for gastroenteritis, referral for
+      suspected typhoid.
+    endemic_regions: ["villages served by a single borewell or open well"]
+    review: pending
+    presents_with:
+      - symptom: abdominal_pain
+        weight: 0.6
+      - symptom: fatigue
+        weight: 0.4
+    risk_factors:
+      - exposure: borewell_water
+        weight: 0.8
+      - exposure: stagnant_water
+        weight: 0.5
+    stages: ["acute"]
+
+  hypertension:
+    name: "Hypertension"
+    description: >
+      Chronically elevated blood pressure, a major risk factor for stroke and
+      cardiovascular disease, frequently underdiagnosed in rural populations.
+    why_it_occurs: >
+      Age, high dietary salt intake, obesity, sedentary lifestyle, family history.
+    mitigation: >
+      BP cuff confirmation, dietary salt reduction, weight management,
+      antihypertensive therapy if confirmed.
+    endemic_regions: ["pan-India"]
+    review: pending
+    presents_with:
+      - symptom: headache
+        weight: 0.4
+      - symptom: dizziness
+        weight: 0.4
+    confirmed_by:
+      - test: bp_cuff_confirmation
+        test_name: "BP cuff confirmation"
+        priority: 1
+    stages: ["stage_1", "stage_2", "crisis"]
+
+  type_2_diabetes:
+    name: "Type 2 diabetes"
+    description: >
+      A chronic metabolic condition causing elevated blood glucose, increasingly
+      prevalent in rural India alongside dietary and lifestyle transition.
+    why_it_occurs: >
+      Insulin resistance driven by obesity, sedentary lifestyle, and genetic
+      predisposition.
+    mitigation: >
+      Blood-glucose confirmation, dietary counselling, metformin per guideline,
+      regular foot and eye screening.
+    endemic_regions: ["pan-India"]
+    review: pending
+    presents_with:
+      - symptom: fatigue
+        weight: 0.4
+      - symptom: excessive_hunger
+        weight: 0.5
+      - symptom: polyuria
+        weight: 0.6
+    stages: ["prediabetes", "diagnosed", "complicated"]
+
+  chronic_kidney_disease:
+    name: "Chronic kidney disease"
+    description: >
+      Progressive loss of kidney function over months to years, often driven by
+      uncontrolled hypertension or diabetes, and by agrochemical/heat-stress
+      exposure in some rural agricultural regions.
+    why_it_occurs: >
+      Long-standing hypertension or diabetes; in some regions, occupational
+      heat stress and agrochemical exposure (CKDu).
+    mitigation: >
+      Serum creatinine confirmation, blood-pressure and glucose control,
+      hydration and heat-stress mitigation for agricultural workers.
+    endemic_regions: ["Andhra Pradesh (Uddanam)", "Sri Lanka border regions"]
+    review: pending
+    presents_with:
+      - symptom: fatigue
+        weight: 0.5
+      - symptom: swelling_of_stomach
+        weight: 0.4
+      - symptom: puffy_face_and_eyes
+        weight: 0.4
+    confirmed_by:
+      - test: serum_creatinine
+        test_name: "Serum creatinine"
+        priority: 1
+    risk_factors:
+      - exposure: borewell_water
+        weight: 0.3
+    stages: ["stage_1", "stage_2", "stage_3", "stage_4", "stage_5"]
+
+vital_types:
+  - slug: heart_rate
+    name: "Heart rate"
+    measures:
+      - symptom: fatigue
+        direction: positive
+      - symptom: palpitations
+        direction: positive
+  - slug: respiration_rate
+    name: "Respiration rate"
+    measures:
+      - symptom: exertional_breathlessness
+        direction: positive
+      - symptom: chest_tightness
+        direction: positive
+  - slug: spo2
+    name: "Oxygen saturation (approximate)"
+    measures:
+      - symptom: exertional_breathlessness
+        direction: negative
+  - slug: bp_trend
+    name: "Blood pressure trend"
+    measures:
+      - symptom: headache
+        direction: positive
+      - symptom: dizziness
+        direction: positive
+  - slug: pallor_score
+    name: "Pallor score"
+    measures:
+      - symptom: pallor
+        direction: positive
+      - symptom: fatigue
+        direction: positive

@@ -1,0 +1,97 @@
+{
+  "_note": "Cached golden-path LLM/STT responses for the specs.md §1 Ramesh Kumar consultation. Served when the transcript matches the golden path, or when a live Gemini call fails or is rate-limited, so the demo never breaks. Telugu strings are the demo script only — they are NOT clinical content and need a native-speaker check before the demo (progress.md open questions).",
+  "script_id": "ramesh_kumar_te",
+  "match_markers": [
+    "cough",
+    "chest feels tight",
+    "tired very fast",
+    "lost weight",
+    "at night"
+  ],
+  "transcribe": {
+    "language_detected": "te",
+    "turns": [
+      {
+        "speaker": "officer",
+        "text": "What is troubling you?",
+        "text_original": "మీకు ఏమి ఇబ్బందిగా ఉంది?",
+        "start_s": 0.0
+      },
+      {
+        "speaker": "person",
+        "text": "For two or three weeks now I have had a cough. It does not go.",
+        "text_original": "రెండు మూడు వారాలుగా దగ్గు వస్తోంది. తగ్గడం లేదు.",
+        "start_s": 3.2
+      },
+      {
+        "speaker": "officer",
+        "text": "Any difficulty breathing?",
+        "text_original": "ఊపిరి తీసుకోవడంలో ఇబ్బంది ఉందా?",
+        "start_s": 9.0
+      },
+      {
+        "speaker": "person",
+        "text": "When I walk to the field my chest feels tight. I get tired very fast.",
+        "text_original": "పొలానికి నడిచి వెళ్తున్నప్పుడు ఛాతీ బిగుసుకుపోతున్నట్టు అనిపిస్తుంది. చాలా త్వరగా అలసిపోతున్నాను.",
+        "start_s": 12.5
+      },
+      {
+        "speaker": "officer",
+        "text": "Fever?",
+        "text_original": "జ్వరం ఉందా?",
+        "start_s": 20.0
+      },
+      {
+        "speaker": "person",
+        "text": "Sometimes at night. And I have lost weight.",
+        "text_original": "కొన్నిసార్లు రాత్రిపూట. బరువు కూడా తగ్గాను.",
+        "start_s": 22.0
+      }
+    ]
+  },
+  "extract": {
+    "pain_points": [
+      {
+        "symptom": "cough",
+        "canonical": "cough",
+        "duration_days": 21,
+        "confidence": 0.95,
+        "verbatim": "for two or three weeks now I have had a cough",
+        "verbatim_original": "రెండు మూడు వారాలుగా దగ్గు వస్తోంది"
+      },
+      {
+        "symptom": "exertional chest tightness",
+        "canonical": "chest_tightness",
+        "duration_days": null,
+        "confidence": 0.9,
+        "verbatim": "when I walk to the field my chest feels tight",
+        "verbatim_original": "పొలానికి నడిచి వెళ్తున్నప్పుడు ఛాతీ బిగుసుకుపోతున్నట్టు అనిపిస్తుంది"
+      },
+      {
+        "symptom": "fatigue",
+        "canonical": "fatigue",
+        "duration_days": null,
+        "confidence": 0.88,
+        "verbatim": "I get tired very fast",
+        "verbatim_original": "చాలా త్వరగా అలసిపోతున్నాను"
+      },
+      {
+        "symptom": "night sweats",
+        "canonical": "night_sweats",
+        "duration_days": null,
+        "confidence": 0.75,
+        "verbatim": "sometimes at night",
+        "verbatim_original": "కొన్నిసార్లు రాత్రిపూట"
+      },
+      {
+        "symptom": "weight loss",
+        "canonical": "weight_loss",
+        "duration_days": null,
+        "confidence": 0.85,
+        "verbatim": "I have lost weight",
+        "verbatim_original": "బరువు కూడా తగ్గాను"
+      }
+    ],
+    "red_flags": []
+  }
+}

@@ -1,0 +1,28 @@
+# Render Blueprint for the Sanjeevani backend. Deploy: Render dashboard ->
+# New -> Blueprint -> point at this repo -> Render reads this file.
+# See docs/deploy.md for the full walkthrough including AuraDB setup and the
+# secrets that must be filled in manually (Render will prompt for any env var
+# marked `sync: false`).
+services:
+  - type: web
+    name: sanjeevani-backend
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: NEO4J_URI
+        sync: false # neo4j+s://<id>.databases.neo4j.io from AuraDB
+      - key: NEO4J_USER
+        sync: false # usually "neo4j"
+      - key: NEO4J_PASSWORD
+        sync: false # from the AuraDB instance-creation screen
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_MODEL
+        value: gemini-3.6-flash
+      - key: GEMINI_STT_MODEL
+        value: gemini-3.6-flash
+      - key: SANJEEVANI_FIXTURE_MODE
+        value: "false" # flip to "true" in the Render dashboard as a network-loss contingency

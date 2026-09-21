@@ -1,0 +1,93 @@
+alias,slug
+cough,cough
+coughing,cough
+persistent cough,cough
+for two or three weeks now i have had a cough,cough
+dry cough,cough
+chest feels tight,chest_tightness
+chest tightness,chest_tightness
+exertional chest tightness,chest_tightness
+when i walk to the field my chest feels tight,chest_tightness
+tightness in the chest,chest_tightness
+chest feels heavy,chest_tightness
+tired,fatigue
+tired quickly,fatigue
+fatigue,fatigue
+i get tired very fast,fatigue
+exhausted,fatigue
+feeling exhausted,fatigue
+weakness,fatigue
+sweating at night,night_sweats
+night sweats,night_sweats
+sometimes at night,night_sweats
+waking up drenched in sweat,night_sweats
+sweats at night,night_sweats
+weight loss,weight_loss
+lost weight,weight_loss
+i have lost weight,weight_loss
+clothes have become loose,weight_loss
+losing weight,weight_loss
+exertional dyspnea,exertional_breathlessness
+exertional breathlessness,exertional_breathlessness
+shortness of breath on exertion,exertional_breathlessness
+breathless when walking,exertional_breathlessness
+difficulty breathing,exertional_breathlessness
+breathlessness,exertional_breathlessness
+facial droop,facial_droop
+drooping face,facial_droop
+one side of face drooping,facial_droop
+limb pain,limb_pain
+pain in the limb,limb_pain
+pain in arm or leg,limb_pain
+injury,injury
+fall injury,injury
+accident,injury
+had a fall,injury
+difficulty walking,difficulty_walking
+trouble walking,difficulty_walking
+limping,difficulty_walking
+disorientation,disorientation
+confused,disorientation
+feeling disoriented,disorientation
+jaundice signs,jaundice_signs
+yellowing of eyes,yellowing_of_eyes
+yellow eyes,yellowing_of_eyes
+yellowish skin,yellowish_skin
+yellow skin,yellowish_skin
+dark urine,dark_urine
+urine is dark,dark_urine
+pale,pallor
+paleness,pallor
+looking pale,pallor
+conjunctival pallor,pallor
+pale skin,pallor
+palpitations,palpitations
+heart racing,palpitations
+heart feels rapid,palpitations
+fever,high_fever
+high fever,high_fever
+running a temperature,high_fever
+chills,chills
+shivering,chills
+fever with chills,chills
+joint pain,joint_pain
+body ache,joint_pain
+muscle and joint pain,joint_pain
+stomach pain,abdominal_pain
+abdominal pain,abdominal_pain
+pain in stomach,abdominal_pain
+headache,headache
+head pain,headache
+dizzy,dizziness
+dizziness,dizziness
+feeling lightheaded,dizziness
+excessive hunger,excessive_hunger
+always hungry,excessive_hunger
+frequent urination,polyuria
+urinating often,polyuria
+puffy face,puffy_face_and_eyes
+swollen face,puffy_face_and_eyes
+swelling of stomach,swelling_of_stomach
+bloated stomach,swelling_of_stomach
+itching,itching
+skin rash,skin_rash
