@@ -8,6 +8,17 @@ camera, talk to the person, and in a few minutes get vitals, extracted symptoms,
 a reasoned set of screening considerations with recommended follow-up tests — every
 claim traceable back to a knowledge graph, never a diagnosis, never a black box.
 
+## About this build
+
+This repository is a **hackathon demo**: a working, browser-based prototype built
+to prove the end-to-end idea — real rPPG signal processing, a real knowledge graph,
+a real conversational pipeline — rather than a mocked walkthrough. It runs the full
+loop from camera to graph reasoning to report on a single machine via
+`docker compose`, seeded with public and curated data so the golden path works
+without any live health-camp deployment. Some screens (village dashboard, developer
+graph explorer) are functional but intentionally lightweight for the demo; see
+[progress.md](progress.md) for the exact state of every screen and pipeline stage.
+
 ## Workflow
 
 ```mermaid
@@ -112,3 +123,12 @@ No camera-derived diagnosis, no absolute blood-pressure mmHg values, no
 haemoglobin-from-camera estimation, no composite health score, no video leaving
 the device. Every vital and every graph edge ships with a confidence tier. See
 [CLAUDE.md](CLAUDE.md) for the full list.
+
+## Roadmap
+
+This demo proves the pipeline end-to-end on a laptop with seed data. The planned
+production app takes every piece shown here — rPPG vitals, voice consultation,
+graph reasoning, reporting, village-level aggregation, multilingual support — and
+ships it as a **fully functional mobile/web application**, hardened for real
+health-camp use: offline-tolerant sync, a clinician-reviewed knowledge base at
+full scale, and hospital/EHR integration for the recommended follow-up tests.
