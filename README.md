@@ -1,9 +1,61 @@
 # Sanjeevani.AI
 
-Phone-based screening assistant for rural health camps in India. A medical officer
-opens it in a browser, points the camera at a person, has a conversation, and gets a
-structured assessment with recommended follow-up tests — with every recommendation
-carrying its reasoning. Screening aid for a trained officer; never a diagnosis.
+**A phone camera and a conversation, turned into a structured health screening.**
+
+At a rural health camp, one officer and one phone can only see so many people a day,
+and paper triage misses the quiet cases. Sanjeevani.AI runs on any browser: point the
+camera, talk to the person, and in a few minutes get vitals, extracted symptoms, and
+a reasoned set of screening considerations with recommended follow-up tests — every
+claim traceable back to a knowledge graph, never a diagnosis, never a black box.
+
+## Workflow
+
+```mermaid
+flowchart TD
+    A["1 · Camp dashboard<br/>officer checks a person in, consent captured"] --> B["2 · Intake<br/>name, age, basic details"]
+    B --> C["3-5 · Camera vitals (rPPG)<br/>RGB signal per ROI, extracted on-device"]
+    C --> D["6-9 · Voice consultation<br/>transcribed, symptoms extracted + normalised"]
+    D --> E{"10 · Agent suggests<br/>a closer look?"}
+    E -- yes --> F["11-12 · Second look<br/>face mesh, posture, pallor cues"]
+    E -- no --> G
+    F --> G["13 · Assessment<br/>graph reasoning over vitals + symptoms + findings"]
+    G --> H["14-15 · Save + profile<br/>PDF report for the officer"]
+    G --> I["16 · Explain view<br/>reasoning chain, developer graph traversal"]
+    H --> J["17 · Village dashboard<br/>aggregate view, cluster alerts"]
+```
+
+## System architecture
+
+```mermaid
+flowchart LR
+    subgraph Browser["Browser (client-side)"]
+        CAM["Camera<br/>MediaPipe face mesh + rPPG ROI extraction"]
+        MIC["Microphone<br/>voice capture"]
+        UI["React UI<br/>19 wireframe screens"]
+    end
+
+    subgraph Backend["FastAPI backend"]
+        API["API layer<br/>consult · vitals · person · session"]
+        SIG["Signal pipeline<br/>NumPy/SciPy rPPG, quality + confidence"]
+        AGENT["Agents<br/>extraction · normalise · reasoning · triggers"]
+        REPORT["Report<br/>ReportLab PDF"]
+    end
+
+    subgraph Data["Data"]
+        GEMINI["Gemini<br/>behind a provider interface"]
+        GRAPH[("Neo4j<br/>KB: curated + Kaggle seed<br/>PHI: person + session data")]
+    end
+
+    CAM -- "RGB array JSON<br/>(no video ever sent)" --> API
+    MIC -- "transcript" --> API
+    UI <--> API
+    API --> SIG
+    API --> AGENT
+    AGENT <--> GEMINI
+    AGENT <--> GRAPH
+    AGENT --> REPORT
+    REPORT --> UI
+```
 
 ## How it works
 
