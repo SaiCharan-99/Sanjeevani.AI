@@ -31,6 +31,10 @@ export default {
         r: "14px",
         "r-lg": "20px",
       },
+      spacing: {
+        "4.5": "1.125rem",
+        "6.5": "1.625rem",
+      },
       fontFamily: {
         sans: ["Inter", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "Helvetica", "Arial", "sans-serif"],
       },

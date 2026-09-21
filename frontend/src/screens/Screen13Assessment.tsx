@@ -10,33 +10,9 @@ import type { Consideration, RiskModelOutput, SynthesisResultResponse } from "..
 import { api, BASE_URL } from "../api/client";
 import { getSessionId } from "../capture/sessionStore";
 
-const GOLDEN_PATH_FALLBACK: SynthesisResultResponse = {
-  considerations: [
-    {
-      disease: "Pulmonary tuberculosis", score: 0.87, rank: 1, priority: "high", review: "approved",
-      reasoning_chain: [
-        { evidence: "cough (21 days)", edge: "PRESENTS_WITH", weight: 0.9, note: "NTEP presumptive TB: cough >= 2 weeks" },
-        { evidence: "weight loss", edge: "PRESENTS_WITH", weight: 0.8, note: null },
-        { evidence: "night sweats", edge: "PRESENTS_WITH", weight: 0.7, note: null },
-      ],
-      recommended_tests: ["Sputum smear / NAAT", "Chest X-ray"],
-    },
-    {
-      disease: "COPD", score: 0.42, rank: 2, priority: "medium", review: "pending",
-      reasoning_chain: [
-        { evidence: "age 52 + biomass exposure + exertional breathlessness", edge: "RISK_FACTOR", weight: 0.5, note: null },
-      ],
-      recommended_tests: ["Spirometry"],
-    },
-  ],
-  risk_models: [
-    {
-      name: "anemia_risk", score: 0.62, f1: null,
-      metric: "rule-based scorer — no trained-model accuracy metric",
-      basis: "pallor + tachycardia + reported fatigue + sex", inputs: ["pallor_score", "heart_rate", "fatigue"],
-      disclaimer: "screening signal, not a diagnosis",
-    },
-  ],
+const EMPTY_RESULT: SynthesisResultResponse = {
+  considerations: [],
+  risk_models: [],
 };
 
 function priorityTag(priority: string) {
@@ -100,7 +76,7 @@ function RiskCheckItem({ r }: { r: RiskModelOutput }) {
 
 export default function Screen13Assessment() {
   const navigate = useNavigate();
-  const [result, setResult] = useState<SynthesisResultResponse>(GOLDEN_PATH_FALLBACK);
+  const [result, setResult] = useState<SynthesisResultResponse>(EMPTY_RESULT);
   const [loading, setLoading] = useState(true);
   const [downloading, setDownloading] = useState(false);
 
@@ -112,8 +88,7 @@ export default function Screen13Assessment() {
         if (!cancelled && r.considerations.length > 0) setResult(r);
       })
       .catch(() => {
-        /* backend unreachable — keep the golden-path fallback so the demo
-         * never shows a broken assessment screen. */
+        /* backend unreachable — no assessment to show yet */
       })
       .finally(() => !cancelled && setLoading(false));
     return () => {
@@ -158,6 +133,11 @@ export default function Screen13Assessment() {
         </Card>
       )}
       <Sec title="Considerations" right="Ranked" />
+      {!loading && result.considerations.length === 0 && (
+        <ListShell>
+          <Item><Meta title="No assessment yet" subtitle="Runs after voice intake and synthesis complete" /></Item>
+        </ListShell>
+      )}
       {result.considerations.map((c) => (
         <ConsiderationCard key={c.disease} c={c} />
       ))}

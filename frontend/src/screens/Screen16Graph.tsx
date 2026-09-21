@@ -14,16 +14,10 @@ import type { ExplainResponse } from "../api/types";
 import { api } from "../api/client";
 import { getSessionId } from "../capture/sessionStore";
 
-const GOLDEN_PATH_FALLBACK: ExplainResponse = {
-  consideration: "tuberculosis",
-  score: 0.87,
-  edges: [
-    { evidence: "cough (21 days)", source: "reported", confidence: 0.98, role: "strongest", edge: "PRESENTS_WITH", weight: 1.0, screening_rule: "NTEP presumptive TB: cough >= 2 weeks" },
-    { evidence: "weight_loss", source: "inferred", confidence: 0.74, role: "supporting" },
-    { evidence: "night_sweats", source: "reported", confidence: 0.68, role: "supporting" },
-    { evidence: "respiration_rate 22", source: "capture", confidence: 0.8, role: "supporting" },
-    { evidence: "Kadiri TB cluster (2 confirmed)", source: "village", role: "context" },
-  ],
+const EMPTY_RESULT: ExplainResponse = {
+  consideration: "",
+  score: 0,
+  edges: [],
   nodes: [],
   graph_edges: [],
 };
@@ -37,7 +31,7 @@ function roleTag(role: string) {
 export default function Screen16Graph() {
   const navigate = useNavigate();
   const [devMode, setDevMode] = useState(false);
-  const [data, setData] = useState<ExplainResponse>(GOLDEN_PATH_FALLBACK);
+  const [data, setData] = useState<ExplainResponse>(EMPTY_RESULT);
   const [devData, setDevData] = useState<ExplainResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [devLoading, setDevLoading] = useState(false);
@@ -50,7 +44,7 @@ export default function Screen16Graph() {
         if (!cancelled && r.edges.length > 0) setData(r);
       })
       .catch(() => {
-        /* backend unreachable — golden-path fallback keeps the demo alive */
+        /* backend unreachable — no explainability data to show yet */
       })
       .finally(() => !cancelled && setLoading(false));
     return () => {
@@ -77,6 +71,7 @@ export default function Screen16Graph() {
     };
   }, [devMode, devData]);
 
+  const hasData = data.consideration.length > 0;
   const diseaseLabel = data.consideration.replace(/_/g, " ");
 
   return (
@@ -85,8 +80,10 @@ export default function Screen16Graph() {
         <IconBtn onClick={() => navigate(-1)}>‹</IconBtn>
         <Tag variant="accent">Explainability</Tag>
       </Top>
-      <h2 className="text-[26px] font-bold mb-1.5 capitalize">{diseaseLabel}</h2>
-      <p className="text-sm text-text-2 mb-5">Score {data.score.toFixed(2)} — evidence contributing to this consideration.</p>
+      <h2 className="text-[26px] font-bold mb-1.5 capitalize">{hasData ? diseaseLabel : "No consideration yet"}</h2>
+      <p className="text-sm text-text-2 mb-5">
+        {hasData ? `Score ${data.score.toFixed(2)} — evidence contributing to this consideration.` : "Runs after an assessment has been generated for this session."}
+      </p>
       <div className="flex gap-2.5 mb-4">
         <Seg label="Explain view" active={!devMode} onClick={() => setDevMode(false)} />
         <Seg label="Developer mode" active={devMode} onClick={() => setDevMode(true)} />

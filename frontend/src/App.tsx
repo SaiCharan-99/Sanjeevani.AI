@@ -1,5 +1,6 @@
 import { HashRouter, Link, Route, Routes, useLocation } from "react-router-dom";
 
+import { Logo } from "./components/Logo";
 import Screen1Camp from "./screens/Screen1Camp";
 import Screen2Intake from "./screens/Screen2Intake";
 import Screen3ScanIntro from "./screens/Screen3ScanIntro";
@@ -44,26 +45,30 @@ const SCREENS: { path: string; label: string; el: JSX.Element }[] = [
 
 function Rail() {
   const location = useLocation();
+  const activeIndex = SCREENS.findIndex((s) => s.path === location.pathname);
   return (
     <div className="sticky top-0 z-50 bg-bg/95 backdrop-blur border-b border-line-soft">
-      <div className="flex items-center gap-2.5 px-4 pt-3.5 pb-2.5">
-        <div className="w-8 h-8 rounded-[10px] bg-accent text-accent-ink flex items-center justify-center flex-shrink-0 font-bold">
-          S
+      <div className="flex items-center justify-between gap-2.5 px-4 py-2.5">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <Logo size={30} />
+          <h1 className="text-[15px] font-bold tracking-tight leading-tight truncate">Sanjeevani.AI</h1>
         </div>
-        <div>
-          <h1 className="text-[17px] font-bold tracking-tight leading-tight">Sanjeevani</h1>
-          <p className="text-xs text-text-3">Rural diagnostic · guided flow</p>
-        </div>
+        {activeIndex >= 0 && (
+          <span className="flex-shrink-0 text-[11px] font-semibold text-text-3 bg-bg-2 border border-line-soft rounded-full px-2.5 py-1 whitespace-nowrap">
+            {activeIndex + 1} / {SCREENS.length}
+          </span>
+        )}
       </div>
-      <div className="flex gap-2 overflow-x-auto px-4 pb-3">
+      <div className="flex gap-1.5 overflow-x-auto px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {SCREENS.map((s) => (
           <Link
             key={s.path}
             to={s.path}
-            className={`flex-none h-8 px-3.5 rounded-full border font-semibold text-[13px] whitespace-nowrap ${
+            title={s.label}
+            className={`flex-none h-7 px-2.5 rounded-full border font-semibold text-[12px] whitespace-nowrap transition-colors ${
               location.pathname === s.path
                 ? "bg-accent border-accent text-accent-ink"
-                : "bg-bg-2 border-line text-text-2"
+                : "bg-bg-2 border-line-soft text-text-3 hover:text-text-2 hover:border-line"
             }`}
           >
             {s.label}
@@ -78,7 +83,7 @@ export default function App() {
   return (
     <HashRouter>
       <Rail />
-      <div className="max-w-[560px] mx-auto px-4 pt-5 pb-10">
+      <div className="max-w-[560px] mx-auto px-4 pt-4 pb-10">
         <Routes>
           <Route path="/" element={SCREENS[0].el} />
           {SCREENS.map((s) => (

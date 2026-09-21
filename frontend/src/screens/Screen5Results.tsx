@@ -10,16 +10,6 @@ import type { VitalsProcessResponse } from "../api/types";
 import { readVitalsResult, getSessionId } from "../capture/sessionStore";
 import { api, BASE_URL } from "../api/client";
 
-const GOLDEN_PATH_FALLBACK: VitalsProcessResponse = {
-  heart_rate: { value: 96, unit: "bpm", quality: 0.86, tier: "reliable" },
-  respiration_rate: { value: 22, unit: "brpm", quality: 0.71, tier: "reliable" },
-  spo2: { value: 94, unit: "%", quality: 0.63, tier: "approximate" },
-  bp_trend: { direction: "elevated", quality: 0.41, tier: "trend_only" },
-  passive_findings: { pallor_score: 0.7, facial_tension: 0.4, blink_rate: 14 },
-  overall_quality: 0.74,
-  retake_recommended: false,
-};
-
 function bandPct(quality: number): number {
   return Math.round(Math.min(1, Math.max(0, quality)) * 100);
 }
@@ -27,7 +17,7 @@ function bandPct(quality: number): number {
 export default function Screen5Results() {
   const navigate = useNavigate();
   const [tab, setTab] = useState(0);
-  const [result, setResult] = useState<VitalsProcessResponse>(GOLDEN_PATH_FALLBACK);
+  const [result, setResult] = useState<VitalsProcessResponse | null>(null);
   const [downloading, setDownloading] = useState(false);
 
   async function downloadReport() {
@@ -48,6 +38,20 @@ export default function Screen5Results() {
     const stored = readVitalsResult();
     if (stored) setResult(stored);
   }, []);
+
+  if (!result) {
+    return (
+      <>
+        <Top>
+          <IconBtn onClick={() => navigate(-1)}>‹</IconBtn>
+          <Tag variant="mute">No scan yet</Tag>
+        </Top>
+        <h2 className="text-[26px] font-bold mb-1.5">Results</h2>
+        <Note>No vitals recorded for this session yet. Run a scan from the live capture screen to see results here.</Note>
+        <Cta onClick={() => navigate("/3")}>Start scan →</Cta>
+      </>
+    );
+  }
 
   const anemiaLikelihood =
     result.passive_findings.pallor_score >= 0.6
