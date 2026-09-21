@@ -27,14 +27,19 @@ Rules:
   - Report only what was actually said. Never infer, never add a symptom that was not
     mentioned, never name a disease and never give a diagnosis.
   - Do not include the officer's questions as symptoms.
-  - "symptom" is a short everyday English description of the complaint
-    (e.g. "exertional chest tightness", "night sweats").
+  - One symptom per entry. When the person lists several complaints in a single
+    sentence (e.g. "I have fever, cold and headache"), split it into one entry per
+    complaint — never merge them, and never drop any of them.
+  - "symptom" is a short everyday English description of THAT ONE complaint only
+    (e.g. "exertional chest tightness", "night sweats") — not a summary of everything
+    the person said.
   - "duration_days" only when a duration was actually stated; convert to whole days
     (e.g. "two or three weeks" -> 21). Otherwise null.
   - "confidence" is 0.0-1.0: how certain you are the person reported this symptom.
-  - "verbatim" is the person's own words, in English, copied from the transcript.
-  - "verbatim_original" is the same words in the original spoken language if the
-    transcript carries them, otherwise null.
+  - "verbatim" is the specific word or phrase for THAT ONE symptom only, copied from
+    the transcript — never the whole sentence it came from.
+  - "verbatim_original" is the same word or phrase in the original spoken language if
+    the transcript carries them, otherwise null.
 
 Transcript:
 {transcript}
@@ -59,7 +64,13 @@ def canonicalise(points: list[ExtractedPainPoint]) -> list[dict]:
     out: list[dict] = []
     seen: dict[str, int] = {}
     for p in points:
-        slug = resolve_symptom(p.symptom) or resolve_symptom(p.verbatim)
+        # Only resolve against the LLM's own short paraphrase, never `verbatim`:
+        # verbatim can be a whole multi-symptom sentence (observed in testing —
+        # the model doesn't reliably scope it to one symptom), and matching
+        # against that risks an unrelated symptom's name appearing as a
+        # substring and getting silently, wrongly attached here. An unresolved
+        # symptom correctly stays `unmapped_text` for officer review instead.
+        slug = resolve_symptom(p.symptom)
         record = {
             "symptom": p.symptom,
             "canonical": slug,
