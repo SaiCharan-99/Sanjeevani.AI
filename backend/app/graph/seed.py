@@ -25,7 +25,21 @@ import yaml
 from app.graph import queries as q
 from app.graph.client import GraphClient
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
+def _find_repo_root() -> Path:
+    """Locate the directory containing data/seed/.
+
+    Fixed-depth `parents[N]` breaks across environments: locally this file
+    sits at <repo>/backend/app/graph/seed.py (3 levels down), but the Docker
+    image copies `backend/app` to `/app/app`, dropping the `backend/`
+    nesting level entirely. Search upward instead of assuming a depth.
+    """
+    for parent in Path(__file__).resolve().parents:
+        if (parent / "data" / "seed").is_dir():
+            return parent
+    raise FileNotFoundError("Could not locate data/seed/ above " + str(__file__))
+
+
+REPO_ROOT = _find_repo_root()
 KAGGLE_DIR = REPO_ROOT / "data" / "seed" / "kaggle"
 CURATED_DIR = REPO_ROOT / "data" / "seed" / "curated"
 

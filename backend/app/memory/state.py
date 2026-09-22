@@ -21,6 +21,8 @@ class SessionState:
 
     session_id: str
     person_id: str | None = None
+    person: dict | None = None
+    language: str = "en"
     vitals: dict = field(default_factory=dict)
     transcript: list[dict] = field(default_factory=list)
     pain_points: list[dict] = field(default_factory=list)
@@ -32,8 +34,10 @@ class SessionState:
 _SESSIONS: dict[str, SessionState] = {}
 
 
-def open_session(session_id: str, person_id: str | None = None) -> SessionState:
-    state = SessionState(session_id=session_id, person_id=person_id)
+def open_session(
+    session_id: str, person_id: str | None = None, person: dict | None = None, language: str = "en"
+) -> SessionState:
+    state = SessionState(session_id=session_id, person_id=person_id, person=person, language=language)
     _SESSIONS[session_id] = state
     return state
 

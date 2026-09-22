@@ -61,9 +61,27 @@ async def process_vitals(request: VitalsProcessRequest) -> VitalsProcessResponse
     state = get_or_create_session(request.session_id)
     state.vitals["respiration_rate"] = {
         "value": result.respiration_brpm,
+        "unit": "brpm",
         "quality": result.respiration_quality,
+        "tier": "reliable",
     }
-    state.vitals["heart_rate"] = {"value": result.heart_rate_bpm, "quality": result.heart_rate_quality}
+    state.vitals["heart_rate"] = {
+        "value": result.heart_rate_bpm,
+        "unit": "bpm",
+        "quality": result.heart_rate_quality,
+        "tier": "reliable",
+    }
+    state.vitals["spo2"] = {
+        "value": result.spo2_pct,
+        "unit": "%",
+        "quality": result.spo2_quality,
+        "tier": "approximate",
+    }
+    state.vitals["bp_trend"] = {
+        "direction": result.bp_direction,
+        "quality": result.bp_quality,
+        "tier": "trend_only",
+    }
 
     return VitalsProcessResponse(
         heart_rate=VitalReading(

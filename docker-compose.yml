@@ -27,6 +27,17 @@ services:
       # Not required to boot — providers/llm.py and providers/stt.py degrade
       # gracefully and raise only when actually invoked without a key.
       - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
+      - OPENROUTER_MODEL=${OPENROUTER_MODEL:-}
+      - OPENROUTER_STT_MODEL=${OPENROUTER_STT_MODEL:-}
+      - OPENROUTER_BASE_URL=${OPENROUTER_BASE_URL:-}
+      - WHISPER_MODEL_SIZE=${WHISPER_MODEL_SIZE:-base}
+      - WHISPER_DEVICE=${WHISPER_DEVICE:-cpu}
+      - WHISPER_COMPUTE_TYPE=${WHISPER_COMPUTE_TYPE:-int8}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - ANTHROPIC_MODEL=${ANTHROPIC_MODEL:-}
+      - ANTHROPIC_BASE_URL=${ANTHROPIC_BASE_URL:-}
+      - SANJEEVANI_FIXTURE_MODE=${SANJEEVANI_FIXTURE_MODE:-false}
     volumes:
       - ./data:/app/data:ro
       - ./backend/app:/app/app

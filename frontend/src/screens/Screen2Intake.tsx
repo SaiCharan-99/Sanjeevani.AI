@@ -23,9 +23,9 @@ export default function Screen2Intake() {
   const [consent, setConsent] = useState(false);
   const [gender, setGender] = useState<"male" | "female" | "other">("male");
   const [lang, setLang] = useState<"en" | "te" | "hi">("te");
-  const [name, setName] = useState("Ramesh Kumar");
-  const [age, setAge] = useState("52");
-  const [village, setVillage] = useState("Kadiri Rural");
+  const [name, setName] = useState("");
+  const [age, setAge] = useState("");
+  const [village, setVillage] = useState("");
   const [villageSuggestions, setVillageSuggestions] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -92,7 +92,7 @@ export default function Screen2Intake() {
             max={MAX_AGE}
             className={!ageValid ? "border-bad" : ""}
           />
-          {!ageValid && <p className="text-[11px] text-bad mt-1">Age must be a whole number, 0–120</p>}
+          {age.trim().length > 0 && !ageValid && <p className="text-[11px] text-bad mt-1">Age must be a whole number, 0–120</p>}
         </div>
         <div className="flex-[2]">
           <label className="block font-semibold text-[13px] text-text-2 mb-2">Gender</label>

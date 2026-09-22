@@ -71,7 +71,17 @@ async def start_session(request: SessionStartRequest, http_request: Request) -> 
         except Exception:
             pass  # demo stays usable even if Neo4j write fails; Tier 1 still works
 
-    state.open_session(session_id, person_id=person_id)
+    state.open_session(
+        session_id,
+        person_id=person_id,
+        person={
+            "name": request.person.name,
+            "age": request.person.age,
+            "gender": request.person.gender,
+            "village": request.person.village,
+        },
+        language=request.language,
+    )
     return SessionStartResponse(session_id=session_id, person_id=person_id)
 
 

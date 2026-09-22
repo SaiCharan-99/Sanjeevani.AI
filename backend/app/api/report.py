@@ -64,9 +64,12 @@ def _assemble_session_data(session_id: str) -> dict:
     pain_points = _GOLDEN_PATH_PAIN_POINTS
     findings: list = []
     vitals = _GOLDEN_PATH_VITALS
-    language = "te"
+    language = "en"
 
     if state is not None:
+        if state.person:
+            person = state.person
+        language = state.language
         if state.pain_points:
             pain_points = state.pain_points
         if state.findings:
